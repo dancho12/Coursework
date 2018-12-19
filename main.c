@@ -1,10 +1,11 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <windows.h>
+
 
 #define numMenu 4
 //#define numSettings 10
-
 struct Console{
     int width;
     int height;
@@ -344,9 +345,67 @@ void settings_movement(struct Item *set, struct Console **c, struct Settings *st
 }
 
 
+//void settings_page(struct Item **set, struct Console **c, struct Settings **st){
+//    int sn=0;
+//    char buf[10];
+//    char str[100];
+//    FILE *fp;
+//    char name[] = "my.txt";
+//    fp = fopen(name, "r+t");
+//
+//    while(!feof (fp)) {
+//        if (fgets(buf, 126, fp))
+//        {
+//            fscanf(buf, "%f", &str[0][sn]);
+//            sn++;
+//        }
+//
+//    }
+//    fclose(fp);
+//  char str[][30]={
+//            "Settings",
+//            "IP",
+//            "Port",
+//            "Speed",
+//           "SpeedUp",
+//            "CoordX",
+//            "CoordY",
+//            "CoordZ",
+//            "Back"
+//    };
+//  char str2[][30] ={"Settings",
+//                    "Settings"};
+//  *strcat(*str2,*str);
+//    int j;
+//    int r=1;
+//    (*c)->numSettings = 10;
+//    if(((*set)= calloc((*c)->numSettings, sizeof(struct Item)))==NULL)
+//        printf("\nERROR_1");
+//
+//    for ( j = 0; j < (*c)->numSettings; j++) {
+//        strcpy((*set + j)->str, str[j]);
+//        if(j == 1) {
+//            (*set + j)->coord.X = (*c)->width / 4 - strlen(str[j]) / 4-1;
+//        }else{
+//            (*set + j)->coord.X = (*c)->width / 4 - strlen(str[j]) / 4;
+//        }
+//
+//        if((*c)->numSettings>10)
+//        {
+//            r=2;
+//        }
+//        (*set + j)->coord.Y = (*c)->height / 4 - ((numMenu*r) * 2 - 1) / 4 + (2 * j);//используется numMenu потому что выглядит красиво
+//        SetConsoleCursorPosition((*c)->hOutput, (*set + j)->coord);
+//        printf("%s", (*set + j)->str);
+//    }
+//
+//
+//    start_position_cursor(*set,c);
+//    settings_movement(*set,c,*st);
+//}
+
 void settings_page(struct Item **set, struct Console **c, struct Settings **st){
     int sn=1;
-    //char *str[10];
     char buf[10];
     FILE *fp;
     char name[] = "my.txt";
@@ -355,37 +414,31 @@ void settings_page(struct Item **set, struct Console **c, struct Settings **st){
     while(!feof (fp)) {
         if (fgets(buf, 126, fp))
         {
-            strcat(buf, "\n");
             sn++;
         }
 
     }
     fclose(fp);
-    char str[][30]={
-            "Settings",
-            "IP",
-            "Port",
-            "Speed",
-            "SpeedUp",
-            "CoordX",
-            "CoordY",
-            "CoordZ",
-            "CoordU",
-            "CoordK",
-            "Back"
-    };
+
+    char str[100];
+
     int j;
     int r=1;
-    (*c)->numSettings = 11;
+    (*c)->numSettings = sn;
     if(((*set)= calloc((*c)->numSettings, sizeof(struct Item)))==NULL)
         printf("\nERROR_1");
 
+    fp = fopen(name, "r+t");
+
+
     for ( j = 0; j < (*c)->numSettings; j++) {
-        strcpy((*set + j)->str, str[j]);
+        fgets(str, 126, fp);
+        strcpy((*set + j)->str, str);
+
         if(j == 1) {
-            (*set + j)->coord.X = (*c)->width / 4 - strlen(str[j]) / 4-1;
+            (*set + j)->coord.X = (*c)->width / 4 - strlen(str) / 4-1;
         }else{
-            (*set + j)->coord.X = (*c)->width / 4 - strlen(str[j]) / 4;
+            (*set + j)->coord.X = (*c)->width / 4 - strlen(str) / 4;
         }
 
         if((*c)->numSettings>10)
@@ -396,11 +449,12 @@ void settings_page(struct Item **set, struct Console **c, struct Settings **st){
         SetConsoleCursorPosition((*c)->hOutput, (*set + j)->coord);
         printf("%s", (*set + j)->str);
     }
-
+    fclose(fp);
 
     start_position_cursor(*set,c);
     settings_movement(*set,c,*st);
 }
+
 
 void menu_movement(struct Item *m, struct Console *c, struct Item *set, struct Settings *st){
     BOOL isRun = TRUE;
