@@ -34,6 +34,8 @@ int main() {
     do{
 #if defined(WIN32)
         system("cls");
+#elif defined(_WIN64)
+        system("cls");
 #else
         system("clear");
 #endif
@@ -45,8 +47,11 @@ int main() {
         }
 #if defined(WIN32)
         system("cls");
-#endif
+#elif defined(_WIN64)
+        system("cls");
+#else
         system("clear");
+#endif
         switch (num){
             case 0:
                 break;
@@ -100,8 +105,8 @@ int main() {
                 SysPause();
                 break;
             case 7:
-                printf("Координата x =%d\n",s.x);
-                printf("Координата y =%d\n",s.y);
+                printf("Координтата x =%d\n",s.x);
+                printf("Координтата y =%d\n",s.y);
                 printf("Скорость робота равна %d\n",s.speed);
                 printf("Порт на котором работает робот %d\n",s.port);
                 printf("Показание первого датчика %d\n",s.sensor1);
@@ -124,6 +129,8 @@ int main() {
 
 void SysPause(){
 #if defined(WIN32)
+    system("Pause");
+#elif defined(_WIN64)
     system("Pause");
 #else
     printf("Для продолжения нажмите Enter\n");
@@ -149,7 +156,7 @@ void updi(struct robot *sk){
     FILE *fileptr;
     fileptr = fopen("robot.txt","r");
     if (fileptr == NULL) {
-        printf ("Ошибка\n");
+        printf ("Ошибка - файл не открыт \n");
     }
     else{
         fscanf(fileptr,"%d",&sk->x);
@@ -168,7 +175,7 @@ void updo(struct robot *sk){
     FILE *fileptr;
     fileptr = fopen("robot.txt","w");
     if (fileptr == NULL) {
-        printf ("Ошибка\n");
+        printf ("Ошибка - файл не открыт\n");
     }
     else {
         fprintf(fileptr, "%d\n", (*sk).x);
