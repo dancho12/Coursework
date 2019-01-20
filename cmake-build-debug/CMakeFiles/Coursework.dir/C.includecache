@@ -6,10 +6,14 @@
 
 #IncludeRegexTransform: 
 
-C:/Project/Coursework/main.c
+/home/daniil/CLionProjects/Coursework/main.c
+stdio.h
+-
+locale.h
+-
 stdlib.h
 -
-stdio.h
+unistd.h
 -
 windows.h
 -

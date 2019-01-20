@@ -1,9 +1,7 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/Coursework.dir/main.c.obj"
+  "CMakeFiles/Coursework.dir/main.c.o"
   "Coursework.pdb"
-  "Coursework.exe"
-  "Coursework.exe.manifest"
-  "libCoursework.dll.a"
+  "Coursework"
 )
 
 # Per-language clean rules from dependency scanning.
