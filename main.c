@@ -1,9 +1,9 @@
 #include <stdio.h>
-#include <locale.h>
 #include <stdlib.h>
-#include <unistd.h>
+
 #if defined(WIN32)
 #include <windows.h>
+#include <locale.h>
 #endif
 
 struct robot{
@@ -22,6 +22,7 @@ void updo(struct robot *sk);
 int input();
 void menuview();
 void SysPause();
+void Fflush();
 int main() {
 #if defined(WIN32)
     setlocale(LC_ALL,"Rus");
@@ -34,8 +35,6 @@ int main() {
     do{
 #if defined(WIN32)
         system("cls");
-#elif defined(_WIN64)
-        system("cls");
 #else
         system("clear");
 #endif
@@ -46,8 +45,6 @@ int main() {
             fflush(stdin);
         }
 #if defined(WIN32)
-        system("cls");
-#elif defined(_WIN64)
         system("cls");
 #else
         system("clear");
@@ -71,7 +68,7 @@ int main() {
                 temp = input();
                 while (  temp < 0 ){     //делаем проверку на отрицателньую скорость
                     printf("error-Ошибка ввода\nПовторите ввод: ");
-                    fflush(stdin);
+                    Fflush();
                     temp = input();
                 }
                 s.speed=temp;
@@ -105,12 +102,12 @@ int main() {
                 SysPause();
                 break;
             case 7:
-                printf("Координтата x =%d\n",s.x);
-                printf("Координтата y =%d\n",s.y);
+                printf("Координата x =%d\n",s.x);
+                printf("Координата y =%d\n",s.y);
                 printf("Скорость робота равна %d\n",s.speed);
                 printf("Порт на котором работает робот %d\n",s.port);
                 printf("Показание первого датчика %d\n",s.sensor1);
-                printf("Показание второго датчика%d\n",s.sensor2);
+                printf("Показание второго датчика %d\n",s.sensor2);
                 printf("Зарядка аккумлятора равна %d процентов\n",s.batterry);
                 printf("Ускорение робота равно \n",s.acceleration);
                 SysPause();
@@ -120,17 +117,11 @@ int main() {
                 break;
         }
 
-
-
-
-
     }while(num!=0);
 }
 
 void SysPause(){
 #if defined(WIN32)
-    system("Pause");
-#elif defined(_WIN64)
     system("Pause");
 #else
     printf("Для продолжения нажмите Enter\n");
@@ -138,16 +129,19 @@ void SysPause(){
     getchar();
 #endif
 }
+void Fflush(){
+#if defined(WIN32)
+    fflush(stdin);
+#endif
+    char ch;
+    while (((ch = getchar()) != '\n') && (ch != EOF)) {}
+}
 
 int input(){
     int a = 0;
-    while (!scanf("%d", &a) ) {     //делаем проверку на ввод букв
-        printf("error-Ошибка ввода\nПовторите ввод: ");
-#if defined(WIN32)
-        fflush(stdin);
-#endif
-        char ch;
-        while (((ch = getchar()) != '\n') && (ch != EOF)) {}
+    while (!scanf("%d", &a)||a<0 ) {     //делаем проверку на ввод букв
+        printf("Ошибка ввода\nПовторите ввод: ");
+        Fflush();
     }
     return a;
 }
