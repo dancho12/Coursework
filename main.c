@@ -7,7 +7,7 @@
 #endif
 
 #define numMenu 9
-#define numMenu2 4
+//#define numMenu2 3
 
 struct robot{
     int x;
@@ -107,66 +107,49 @@ void menu_page(struct Item **m, struct Console *c){
 }
 
 
-void menu_page2(struct Item **m, struct Console *c,int ch,int cr, struct robot *s){
+void set_text(int numMenuyy,int j,struct Item **m, struct Console *c,char *str[])
+{
+    strcpy((*m + j)->str, str[j]);
+    (*m + j)->coord.X = c->width / 2 - strlen(str[j]) / 2;
+    (*m + j)->coord.Y = c->height / 2 - (numMenuyy * 2 - 1) / 2 + (2 * j);
+    SetConsoleCursorPosition(c->hOutput, (*m + j)->coord);
+    printf("%s", (*m + j)->str);
 
-    if(cr!=1)
-    {
+}
+
+void menu_page2(struct Item **m, struct Console *c,char *str[],int numMenu2){
+
+
 #if defined(WIN32)
         system("cls");
 #else
         system("clear");
 #endif
-    }
 
-    int x,y;
-    char str[70]={
-            " |Меню управления роботом| ","Введите x:","Введите y:","Назад"};
-    int j;
 
     if(((*m)= calloc(numMenu2, sizeof(struct Item)))==NULL)
         printf("\nERROR_1");
-
-    for ( j = 0; j < numMenu2; j++) {
-        strcpy((*m + j)->str, str[j]);
-        (*m + j)->coord.X = c->width / 2 - strlen(str[j]) / 2;
-        (*m + j)->coord.Y = c->height / 2 - (numMenu2 * 2 - 1) / 2 + (2 * j);
-        SetConsoleCursorPosition(c->hOutput, (*m + j)->coord);
-        printf("%s", (*m + j)->str);
-
+    for ( int j = 0; j < numMenu2; j++) {
+        set_text(4,j,m,c,str);
     }
-    if(ch!=0)
-    {
-        switch (ch){
-            case 1:
-                strcpy((*m + ch)->str, str[ch]);
-                (*m + ch)->coord.X = c->width / 2 - strlen(str[ch]) / 2;
-                (*m + ch)->coord.Y = c->height / 2 - (numMenu2 * 2 - 1) / 2 + (2 * ch);
-                SetConsoleCursorPosition(c->hOutput, (*m + ch)->coord);
-                printf("%s", (*m + ch)->str);
-                x= input();
-                (*s).x=x;
-                updo(s);
-                start_position_cursor(*m,&c);
-                break;
-            case 2:
-                strcpy((*m + ch)->str, str[ch]);
-                (*m + ch)->coord.X = c->width / 2 - strlen(str[ch]) / 2;
-                (*m + ch)->coord.Y = c->height / 2 - (numMenu2 * 2 - 1) / 2 + (2 * ch);
-                SetConsoleCursorPosition(c->hOutput, (*m + ch)->coord);
-                printf("%s", (*m + ch)->str);
-                y= input();
-                (*s).y=y;
-                updo(s);
-                start_position_cursor(*m+1,&c);
-                break;
-        }
 
-    } else
-    {
         start_position_cursor(*m,&c);
-    }
-    //y= input();
 
+}
+
+int menu_page_set(struct Item **m, struct Console *c,int ch,char *str[],int numMenu2){
+
+
+    int x;
+    if(((*m)= calloc(numMenu2, sizeof(struct Item)))==NULL)
+        printf("\nERROR_1");
+    for ( int j = 0; j < numMenu2; j++) {
+        set_text(4,j,m,c,str);
+    }
+    set_text(4,ch,m,c,str);
+    x= input();
+    start_position_cursor(*m+(ch-1),&c);
+    return x;
 }
 
 void console_clear(struct Console *c){
@@ -177,13 +160,13 @@ void console_clear(struct Console *c){
 #endif
 }
 
-void cursor_down(struct Item *m, struct Console *c){
-    if((c->coord.Y<(m+numMenu-1)->coord.Y)&&(c->coord.Y>=(m+(numMenu-8))->coord.Y)){
+void cursor_down(struct Item *m, struct Console *c,int numMenuu){
+    if((c->coord.Y<(m+numMenuu-1)->coord.Y)&&(c->coord.Y>=(m+(numMenuu-(numMenuu-1)))->coord.Y)){
         SetConsoleCursorPosition(c->hOutput,c->coord);
         printf(" ");
         c->coord.Y=c->coord.Y+2;
         int i;
-        for(i=1; i<numMenu; i++){
+        for(i=1; i<numMenuu; i++){
             if(c->coord.Y==(m+i)->coord.Y){
                 c->coord.X=(m+i)->coord.X-1;
                 SetConsoleCursorPosition(c->hOutput,c->coord);
@@ -194,8 +177,8 @@ void cursor_down(struct Item *m, struct Console *c){
 }
 
 
-void cursor_up(struct Item *m, struct Console *c){
-    if((c->coord.Y<=(m+numMenu-1)->coord.Y)&&(c->coord.Y>(m+(numMenu-8))->coord.Y)){
+void cursor_up(struct Item *m, struct Console *c,int numMenuu){
+    if((c->coord.Y<=(m+numMenuu-1)->coord.Y)&&(c->coord.Y>(m+(numMenuu-(numMenuu-1)))->coord.Y)){
         SetConsoleCursorPosition(c->hOutput,c->coord);
         printf(" ");
         c->coord.Y=c->coord.Y-2;
@@ -225,8 +208,10 @@ _Bool console_event(struct Console **c){
 }
 
 void imp(int num, struct robot *s);
-void menu_movement(struct Item *m, struct Console *c, struct Item *set, struct robot *s){
-    int cr =0;
+void control_movement(struct Item *m, struct Console *c, struct robot *s){
+
+    char *str[] [70]={
+            " |Меню управления роботом| ","Введите x:","Введите y:","Назад"};
     BOOL isRun = TRUE;
     while (isRun){
         if(console_event(&c))
@@ -235,28 +220,106 @@ void menu_movement(struct Item *m, struct Console *c, struct Item *set, struct r
                     isRun=FALSE;
                     break;
                 case VK_DOWN:
-                    cursor_down(m,c);
+                    cursor_down(m,c,4);
                     break;
                 case VK_UP:
-                    cursor_up(m,c);
+                    cursor_up(m,c,4);
                     break;
                 case VK_RETURN:{
                     if(c->coord.Y==m[1].coord.Y) {
-                        console_clear(c);
-                        imp(1,s);
                         SetConsoleCursorPosition((*c).hOutput,m[1].coord);
-                        menu_page(&m,c);
-//                        menu_page2(&m,c,1,cr);
-//                        cr=1;
+                        (*s).x=menu_page_set(&m,c,1,*str,4);;
+                        updo(s);
                     }
                     if(c->coord.Y==m[2].coord.Y){
-                        console_clear(c);
-                        imp(2,s);
+
+                        SetConsoleCursorPosition((*c).hOutput,m[2].coord);
+                        (*s).y=menu_page_set(&m,c,2,*str,4);;
+                        updo(s);
+                    }
+                    if(c->coord.Y==m[3].coord.Y)
+                        isRun=FALSE;
+                }
+                    break;
+            }
+    }
+}
+
+int control_uni(struct Item *m, struct Console *c,char *str[],int tt){
+    int x =0;
+    BOOL isRun = TRUE;
+    while (isRun){
+        if(console_event(&c))
+            switch (c->ch){
+                case VK_ESCAPE:
+                    isRun=FALSE;
+                    break;
+                case VK_DOWN:
+                    cursor_down(m,c,tt);
+                    break;
+                case VK_UP:
+                    cursor_up(m,c,tt);
+                    break;
+                case VK_RETURN:{
+                    if(c->coord.Y==m[1].coord.Y) {
+                        SetConsoleCursorPosition((*c).hOutput,m[1].coord);
+                        x=menu_page_set(&m,c,1,str,tt);
+
+                    }
+                    if((c->coord.Y==m[2].coord.Y)&&tt==4) {
+                        SetConsoleCursorPosition((*c).hOutput,m[2].coord);
+                        x=menu_page_set(&m,c,2,str,tt);
+
+                    }
+                    if((c->coord.Y==m[2].coord.Y)&&tt==3){
+                        isRun=FALSE;
+                    }
+                    if((c->coord.Y==m[3].coord.Y)&&tt==4){
+                        isRun=FALSE;
+                    }
+
+                }
+                    break;
+            }
+    }
+    return x;
+}
+
+void menu_movement(struct Item *m, struct Console *c, struct robot *s){
+    BOOL isRun = TRUE;
+    while (isRun){
+        if(console_event(&c))
+            switch (c->ch){
+                case VK_ESCAPE:
+                    isRun=FALSE;
+                    break;
+                case VK_DOWN:
+                    cursor_down(m,c,9);
+                    break;
+                case VK_UP:
+                    cursor_up(m,c,9);
+                    break;
+                case VK_RETURN:{
+                    if(c->coord.Y==m[1].coord.Y) {
+                        char *str[] [70]={
+                                " |Меню управления роботом| ","Введите x:","Введите y:","Назад"};
+                        menu_page2(&m,c,*str,4);
+
+//                        (*s).x=control_uni(m,c,*str,4);
+//                        (*s).y=control_uni(m,c,*str,4);
+//                        updo(s);
+                        control_movement(m,c,s);
+                        SetConsoleCursorPosition((*c).hOutput,m[1].coord);
+                        menu_page(&m,c);
+                    }
+                    if(c->coord.Y==m[2].coord.Y){
+                        char *str[] [70]={
+                                " |Меню управления роботом| ","Введите скорость, которую хотите установить:","Назад"};
+                        menu_page2(&m,c,*str,3);
+                        (*s).speed=control_uni(m,c,*str,3);
+                        updo(s);
                         SetConsoleCursorPosition((*c).hOutput,m[2].coord);
                         menu_page(&m,c);
-//                        menu_page2(&m,c,2,cr);
-//                        SetConsoleCursorPosition((*c).hOutput,m[2].coord);
-//                        cr=1;
                     }
                     if(c->coord.Y==m[3].coord.Y){
                         console_clear(c);
@@ -291,40 +354,7 @@ void menu_movement(struct Item *m, struct Console *c, struct Item *set, struct r
     }
 }
 
-void control_movement(struct Item *m, struct Console *c, struct Item *set, struct robot *s){
-    int cr =0;
-    BOOL isRun = TRUE;
-    while (isRun){
-        if(console_event(&c))
-            switch (c->ch){
-                case VK_ESCAPE:
-                    isRun=FALSE;
-                    break;
-                case VK_DOWN:
-                    cursor_down(m,c);
-                    break;
-                case VK_UP:
-                    cursor_up(m,c);
-                    break;
-                case VK_RETURN:{
-                    if(c->coord.Y==m[1].coord.Y) {
-                        SetConsoleCursorPosition((*c).hOutput,m[1].coord);
-                        menu_page2(&m,c,1,cr,&s);
-                        cr=1;
-                    }
-                    if(c->coord.Y==m[2].coord.Y){
 
-                        menu_page2(&m,c,2,cr);
-                        SetConsoleCursorPosition((*c).hOutput,m[2].coord);
-                        cr=1;
-                    }
-                    if(c->coord.Y==m[3].coord.Y)
-                        isRun=FALSE;
-                }
-                    break;
-            }
-    }
-}
 
 
 
@@ -355,7 +385,7 @@ int main() {
 
         console_init(&c);
         menu_page(&m,c);
-        menu_movement(m,c,set,&s);
+        menu_movement(m,c,&s);
 
         //menuview();
 //        while ( ( !scanf("%d",&num) ) || num < 0 || num > 7){     //делаем проверку на ввод букв
