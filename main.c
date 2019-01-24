@@ -7,6 +7,7 @@
 #endif
 
 #define numMenu 9
+#define numMenu2 4
 
 struct robot{
     int x;
@@ -106,7 +107,7 @@ void menu_page(struct Item **m, struct Console *c){
 }
 
 
-void menu_page2(struct Item **m, struct Console *c,int ch,int cr){
+void menu_page2(struct Item **m, struct Console *c,int ch,int cr, struct robot *s){
 
     if(cr!=1)
     {
@@ -117,18 +118,18 @@ void menu_page2(struct Item **m, struct Console *c,int ch,int cr){
 #endif
     }
 
-    int y;
+    int x,y;
     char str[70]={
-            " |Меню управления роботом| "};
-    int j=1;
+            " |Меню управления роботом| ","Введите x:","Введите y:","Назад"};
+    int j;
 
-    if(((*m)= calloc(numMenu, sizeof(struct Item)))==NULL)
+    if(((*m)= calloc(numMenu2, sizeof(struct Item)))==NULL)
         printf("\nERROR_1");
 
-    for ( j = 0; j < numMenu; j++) {
-        strcpy((*m + j)->str, str);
-        (*m + j)->coord.X = c->width / 2 - strlen(str) / 2;
-        (*m + j)->coord.Y = c->height / 2 - (numMenu * 2 - 1) / 2 + (2 * j);
+    for ( j = 0; j < numMenu2; j++) {
+        strcpy((*m + j)->str, str[j]);
+        (*m + j)->coord.X = c->width / 2 - strlen(str[j]) / 2;
+        (*m + j)->coord.Y = c->height / 2 - (numMenu2 * 2 - 1) / 2 + (2 * j);
         SetConsoleCursorPosition(c->hOutput, (*m + j)->coord);
         printf("%s", (*m + j)->str);
 
@@ -137,21 +138,25 @@ void menu_page2(struct Item **m, struct Console *c,int ch,int cr){
     {
         switch (ch){
             case 1:
-                strcpy((*m + ch)->str, str);
-                (*m + ch)->coord.X = c->width / 2 - strlen(str) / 2;
-                (*m + ch)->coord.Y = c->height / 2 - (numMenu * 2 - 1) / 2 + (2 * ch);
+                strcpy((*m + ch)->str, str[ch]);
+                (*m + ch)->coord.X = c->width / 2 - strlen(str[ch]) / 2;
+                (*m + ch)->coord.Y = c->height / 2 - (numMenu2 * 2 - 1) / 2 + (2 * ch);
                 SetConsoleCursorPosition(c->hOutput, (*m + ch)->coord);
                 printf("%s", (*m + ch)->str);
-                y= input();
+                x= input();
+                (*s).x=x;
+                updo(s);
                 start_position_cursor(*m,&c);
                 break;
             case 2:
-                strcpy((*m + ch)->str, str);
-                (*m + ch)->coord.X = c->width / 2 - strlen(str) / 2;
-                (*m + ch)->coord.Y = c->height / 2 - (numMenu * 2 - 1) / 2 + (2 * ch);
+                strcpy((*m + ch)->str, str[ch]);
+                (*m + ch)->coord.X = c->width / 2 - strlen(str[ch]) / 2;
+                (*m + ch)->coord.Y = c->height / 2 - (numMenu2 * 2 - 1) / 2 + (2 * ch);
                 SetConsoleCursorPosition(c->hOutput, (*m + ch)->coord);
                 printf("%s", (*m + ch)->str);
                 y= input();
+                (*s).y=y;
+                updo(s);
                 start_position_cursor(*m+1,&c);
                 break;
         }
@@ -286,6 +291,40 @@ void menu_movement(struct Item *m, struct Console *c, struct Item *set, struct r
     }
 }
 
+void control_movement(struct Item *m, struct Console *c, struct Item *set, struct robot *s){
+    int cr =0;
+    BOOL isRun = TRUE;
+    while (isRun){
+        if(console_event(&c))
+            switch (c->ch){
+                case VK_ESCAPE:
+                    isRun=FALSE;
+                    break;
+                case VK_DOWN:
+                    cursor_down(m,c);
+                    break;
+                case VK_UP:
+                    cursor_up(m,c);
+                    break;
+                case VK_RETURN:{
+                    if(c->coord.Y==m[1].coord.Y) {
+                        SetConsoleCursorPosition((*c).hOutput,m[1].coord);
+                        menu_page2(&m,c,1,cr,&s);
+                        cr=1;
+                    }
+                    if(c->coord.Y==m[2].coord.Y){
+
+                        menu_page2(&m,c,2,cr);
+                        SetConsoleCursorPosition((*c).hOutput,m[2].coord);
+                        cr=1;
+                    }
+                    if(c->coord.Y==m[3].coord.Y)
+                        isRun=FALSE;
+                }
+                    break;
+            }
+    }
+}
 
 
 
